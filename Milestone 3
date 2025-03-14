@@ -1,0 +1,179 @@
+#include <iostream>
+#include <sstream>
+#include <fstream>
+#include <vector>
+using namespace std;
+
+struct School {
+  string name;
+  string address;
+  string city;
+  string state;
+  string county;
+  School* next;
+
+  School(string n, string a, string c, string s, string co)
+  : name(n), address(a), city(c), state(s), county(co) {}
+};
+struct BSTNode {
+  School data;
+  BSTNode* left;
+  BSTNode* right;
+
+  BSTNode(School s) : data(s), left(nullptr), right(nullptr) {}
+};
+
+class CSVReader {
+  public: static vector<vector<string>> readCSV(const string& filename) {
+      ifstream file(filename);
+      vector<vector<string>> data;
+      string line, word;
+      if (!file.is_open()) {
+        cerr << "Error: Could not open file " << filename << endl;
+        return data;
+      }
+
+    while (getline(file, line)) {
+      stringstream ss(line);
+      vector<string> row;
+      while (getline(ss, word, ',')) {
+        row.push_back(word);
+      }
+      data.push_back(row);
+    }
+    file.close();
+    return data;
+  }
+};
+
+class SchoolBST {
+private: BSTNode* root;
+  BSTNode* insertRec(BSTNode* node, const School& school) {
+    if (!node) {
+      return new BSTNode(school);
+    } if (school.name < node->data.name) {
+      node->left = insertRec(node->left, school);
+    } else {
+      node->right = insertRec(node->right, school);
+    }
+    return node;
+  }
+
+  BSTNode* findRec(BSTNode* node, const string& name) {
+      if (!node || node->data.name == name) return node;
+      return name < node->data.name ? findRec(node->left, name) : findRec(node->right, name);
+    }
+
+    BSTNode* deleteRec(BSTNode* node, const string& name) {
+      if (!node) {
+        return nullptr;
+      }
+      if (name < node->data.name) {
+        node->left = deleteRec(node->left, name);
+      } else if (name > node->data.name) {
+        node->right = deleteRec(node->right, name);
+      } else {
+        if (!node->left) {
+          BSTNode* temp = node->right;
+          delete node;
+          return temp;
+        } else if (!node->right) {
+          BSTNode* temp = node->left;
+          delete node;
+          return temp;
+        }
+
+        BSTNode* temp = findMin(node->right);
+        if (temp) {
+          node->data = temp->data;
+          node->right = deleteRec(node->right, node->data.name);
+        }
+
+      return node;
+    }
+  };
+  BSTNode* findMin(BSTNode* node) {
+    while (node->left) node = node->left;
+    return node;
+  }
+  void preOrderRec(BSTNode* node) {
+    if (!node) return;
+    cout << node->data.name << " - " << node->data.address << endl;
+    preOrderRec(node->left);
+    preOrderRec(node->right);
+  }
+  void postOrderRec(BSTNode* node) {
+    if (!node) return;
+    postOrderRec(node->left);
+    postOrderRec(node->right);
+    cout << node->data.name << " - " << node->data.address << endl;
+  }
+  void inOrderRec(BSTNode* node) {
+    if (!node) return;
+    inOrderRec(node->left);
+    cout << node->data.name << " - " << node->data.address << endl;
+    inOrderRec(node->right);
+  }
+public:
+  SchoolBST() : root(nullptr) {}
+
+  void insert(const School& school) {
+    root = insertRec(root, school);
+  }
+
+  void deleteByName(const string& name) {
+    root = deleteRec(root, name);
+  }
+
+  School* findByName(const string& name) {
+    BSTNode* found = findRec(root, name);
+    return found ? &(found->data) : nullptr;
+  }
+
+  void displayInOrder() { inOrderRec(root); }
+  void displayPreOrder() { preOrderRec(root); }
+  void displayPostOrder() { postOrderRec(root); }
+};
+
+int main() {
+  SchoolBST bst;
+  string filename = "schools.csv";
+
+  vector<vector<string>> data = CSVReader::readCSV(filename);
+  vector<string> filenames = {
+    "Illinois_Peoria_Schools.csv",
+    "Illinois_Schools.csv",
+    "Private_Schools.csv",
+    "Public_Schools.csv",
+    "USA_Schools.csv"
+  };
+  for (const auto& row : data) {
+    if (row.size() >= 5) {
+      School school(row[0], row[1], row[2], row[3], row[4]);
+      bst.insert(school);
+    }
+  }
+
+  cout << "Schools in BST (In-Order Traversal):\n";
+  bst.displayInOrder();
+
+  cout << "\nEnter school name to find: ";
+  string searchName;
+  getline(cin, searchName);
+  School* found = bst.findByName(searchName);
+  if (found) {
+    cout << "Found: " << found->name << " - " << found->address << endl;
+  } else {
+    cout << "School not found\n";
+  }
+
+  cout << "\nEnter school name to delete: ";
+  string deleteName;
+  getline(cin, deleteName);
+  bst.deleteByName(deleteName);
+
+  cout << "\nUpdated BST (In-Order Traversal):\n";
+  bst.displayInOrder();
+
+  return 0;
+}
