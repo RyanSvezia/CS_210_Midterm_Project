@@ -1,0 +1,56 @@
+#include <iostream>
+#include <vector>
+#include <list>
+#include <string>
+#include <functional>
+#include <fstream>
+#include <sstream>
+using namespace std;
+
+class SchoolHashTable {
+private:
+    static const int TABLE_SIZE = 100;
+    vector<list<School>> table;
+
+    int hashFunction(const string& key) {
+        return hash<string>{}(key) % TABLE_SIZE;
+    }
+
+public:
+    SchoolHashTable() : table(TABLE_SIZE) {}
+
+    void insert(const School& school) {
+        int index = hashFunction(school.name);
+        table[index].push_back(school);
+    }
+
+    void deleteByName(const string& name) {
+        int index = hashFunction(name);
+        auto& chain = table[index];
+        for (auto it = chain.begin(); it != chain.end(); ++it) {
+            if (it->name == name) {
+                chain.erase(it);
+                return;
+            }
+        }
+    }
+
+    School* findByName(const string& name) {
+        int index = hashFunction(name);
+        for (auto& school : table[index]) {
+            if (school.name == name) return &school;
+        }
+        return nullptr;
+    }
+
+    void display() {
+        for (int i = 0; i < TABLE_SIZE; ++i) {
+            if (!table[i].empty()) {
+                cout << "Bucket " << i << ":\n";
+                for (const auto& school : table[i]) {
+                    cout << "  " << school.name << " - " << school.address << endl;
+                }
+            }
+        }
+    }
+};
