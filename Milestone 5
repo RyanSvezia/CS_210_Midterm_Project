@@ -1,0 +1,64 @@
+#include "Timer.h"
+#include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
+
+vector<School> readSchoolData(const string& filename) {
+  vector<School> schools;
+  vector<vector<string>> rows = CSVReader::readCSV(filename);
+
+  for (const auto& row : rows) {
+    if (row.size() >= 5) {
+      schools.emplace_back(row[0], row[1], row[2], row[3], row[4]);
+    }
+  }
+  return schools;
+}
+
+void benchmarkDataStructures(const string& filename) {
+  auto data = readSchoolData(filename);
+
+  Timer t;
+  SchoolList list;
+  t.start();
+  for (const auto& school : data) list.insertLast(school);
+  t.stop();
+  double listTime = t.get_time();
+
+  SchoolBST bst;
+  t.start();
+  for (const auto& school : data) bst.insert(school);
+  t.stop();
+  double bstTime = t.get_time();
+
+  SchoolHashTable hashTable;
+  t.start();
+  for (const auto& school : data) hashTable.insert(school);
+  t.stop();
+  double hashTime = t.get_time();
+
+  ofstream outFile("benchmark_results.csv", ios::app);
+  if (outFile.is_open()) {
+    outFile << filename << "," << listTime << "," << bstTime << "," << hashTime << "\n";
+    outFile.close();
+  } else {
+    cerr << "Failed to open benchmark_results.csv\n";
+  }
+}
+int main() {
+  vector<string> filenames = {
+    "Illinois_Peoria_Schools.csv",
+    "Illinois_Schools.csv",
+    "Private_Schools.csv",
+    "Public_Schools.csv",
+    "USA_Schools.csv"
+};
+
+  for (const auto& file : filenames) {
+    benchmarkDataStructures(file);
+  }
+
+  cout << "Benchmarking complete. Results saved to benchmark_results.csv\n";
+  return 0;
+}
