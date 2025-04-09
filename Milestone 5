@@ -16,7 +16,7 @@ vector<School> readSchoolData(const string& filename) {
   return schools;
 }
 
-void benchmarkDataStructures(const string& filename) {
+void schoolDataStructures(const string& filename) {
   auto data = readSchoolData(filename);
 
   Timer t;
