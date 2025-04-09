@@ -38,20 +38,17 @@ void benchmarkDataStructures(const string& filename) {
   t.stop();
   double hashTime = t.get_time();
 
-  ofstream outFile("benchmark_results.csv", ios::app);
+  ofstream outFile("school_results.csv", ios::app);
   if (outFile.is_open()) {
     outFile << filename << "," << listTime << "," << bstTime << "," << hashTime << "\n";
     outFile.close();
   } else {
-    cerr << "Failed to open benchmark_results.csv\n";
+    cerr << "Failed to open school_results.csv\n";
   }
 }
 int main() {
   vector<string> filenames = {
-    "Illinois_Peoria_Schools.csv",
     "Illinois_Schools.csv",
-    "Private_Schools.csv",
-    "Public_Schools.csv",
     "USA_Schools.csv"
 };
 
@@ -59,6 +56,6 @@ int main() {
     benchmarkDataStructures(file);
   }
 
-  cout << "Benchmarking complete. Results saved to benchmark_results.csv\n";
+  cout << "Benchmarking complete. Results saved to school_results.csv\n";
   return 0;
 }
