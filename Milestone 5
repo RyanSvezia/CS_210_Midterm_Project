@@ -53,7 +53,7 @@ int main() {
 };
 
   for (const auto& file : filenames) {
-    benchmarkDataStructures(file);
+    schoolDataStructures(file);
   }
 
   cout << "Benchmarking complete. Results saved to school_results.csv\n";
