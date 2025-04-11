@@ -94,6 +94,6 @@ int main() {
     schoolDataStructures(file);
   }
 
-  cout << "Benchmarking complete. Results saved to school_results.csv\n";
+  cout << "Processes complete. Results saved to school_results.csv\n";
   return 0;
 }
